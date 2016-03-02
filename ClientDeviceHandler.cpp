@@ -29,9 +29,16 @@ ClientDeviceHandler::ClientDeviceHandler() {
 
 std::string ClientDeviceHandler::getTime()
 {
-    time_t _tm =time(NULL );
-    struct tm * curtime = localtime ( &_tm );
-    return asctime(curtime);
+    //time_t _tm =time(NULL );
+    //struct tm * curtime = localtime ( &_tm );
+    //return asctime(curtime);
+    time_t t;
+    struct tm * ptr;
+    char buf [20];
+    time ( &t );
+    ptr= localtime ( &t );
+    strftime (buf,20,"%Y-%m-%d/%X",ptr);
+    return buf;
 }
 
 struct ClientDeviceHandler::arg_struct {
@@ -66,14 +73,14 @@ void * ClientDeviceHandler::listener(void *sock) {
 	signal(SIGPIPE, SIG_IGN);
 	sockfd = socket(AF_INET, SOCK_STREAM, 0);
 	if (sockfd < 0)
-		args->errorBuffer->push(ClientDeviceHandler::getTime() + " ERROR opening socket\n");
+		args->errorBuffer->push(ClientDeviceHandler::getTime() + "\tERROR opening socket\n");
 	bzero((char *) &serv_addr, sizeof(serv_addr));
 
 	serv_addr.sin_family = AF_INET;
 	serv_addr.sin_addr.s_addr = INADDR_ANY;
 	serv_addr.sin_port = htons(portno);
 	if (bind(sockfd, (struct sockaddr *) &serv_addr, sizeof(serv_addr)) < 0) {
-		args->errorBuffer->push(ClientDeviceHandler::getTime() + "ERROR on binding\n");
+		args->errorBuffer->push(ClientDeviceHandler::getTime() + "\tERROR on binding\n");
 		close(sockfd);
 	}
 	std::string message = "Starting listening on port ";
@@ -130,14 +137,14 @@ void * ClientDeviceHandler::connection_handler(void *sock) {
 	{
 		std::string xxx = patch::to_string(args->flag);
 		if (newsockfd < 0) {
-			args->errorBuffer->push(ClientDeviceHandler::getTime() + "ERROR on accept\n");
+			args->errorBuffer->push(ClientDeviceHandler::getTime() + "\tERROR on accept\n");
 			close(newsockfd);
 			args->flag = 0;
 		}
 		bzero(buffer, 256);
 		int n = read(newsockfd, buffer, 255);
 		if (n < 0) {
-			args->errorBuffer->push(ClientDeviceHandler::getTime() + "ERROR reading from socket\n");
+			args->errorBuffer->push(ClientDeviceHandler::getTime() + "\tERROR reading from socket\n");
 			args->flag = 0;
 			close(newsockfd);
 		}
@@ -150,7 +157,7 @@ void * ClientDeviceHandler::connection_handler(void *sock) {
 		n = send(newsockfd, "heartbeatASKOK", 14, MSG_NOSIGNAL);
 		if (n < 0) {
 			close(newsockfd);
-			args->errorBuffer->push(ClientDeviceHandler::getTime() + "ERROR writing to socket\n");
+			args->errorBuffer->push(ClientDeviceHandler::getTime() + "\tERROR writing to socket\n");
 			args->flag = 0;
 		}
 		if (!args->outputBuffer->empty()) {
@@ -159,7 +166,7 @@ void * ClientDeviceHandler::connection_handler(void *sock) {
 			n = send(newsockfd, tmp.c_str(), strlen(tmp.c_str()), MSG_NOSIGNAL);
 			if (n < 0) {
 				close(newsockfd);
-				args->errorBuffer->push(ClientDeviceHandler::getTime() + "ERROR writing to socket\n");
+				args->errorBuffer->push(ClientDeviceHandler::getTime() + "\tERROR writing to socket\n");
 				args->flag = 0;
 			} else {
 				args->outputBuffer->pop();
