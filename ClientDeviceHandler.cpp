@@ -65,7 +65,7 @@ void * ClientDeviceHandler::listener(void *sock) {
 	struct sockaddr_in serv_addr, cli_addr;
 
 	args->stateBuffer->push(
-			"Listener thread running - binding to address...\n");
+			ClientDeviceHandler::getTime() + "\tListener thread running - binding to address...\n");
 
 	portno = args->socket;
 	args->flag = 1;
@@ -83,7 +83,7 @@ void * ClientDeviceHandler::listener(void *sock) {
 		args->errorBuffer->push(ClientDeviceHandler::getTime() + "\tERROR on binding\n");
 		close(sockfd);
 	}
-	std::string message = "Starting listening on port ";
+	std::string message = ClientDeviceHandler::getTime() + "\tStarting listening on port ";
 	message += patch::to_string(portno);
 	message += " ...\n";
 	args->stateBuffer->push(message);
@@ -111,7 +111,7 @@ void * ClientDeviceHandler::listener(void *sock) {
 			pthread_create(&handler_thread, NULL,
 					&ClientDeviceHandler::connection_handler,
 					(void*) &argsForClientHandler);
-			message = "Server accepted connection and assigned socket ";
+			message = ClientDeviceHandler::getTime() + "\tServer accepted connection and assigned socket ";
 			message += patch::to_string(*newsockfd) += " \n";
 
 			args->stateBuffer->push(message);
@@ -129,8 +129,7 @@ void * ClientDeviceHandler::connection_handler(void *sock) {
 	struct arg_struct *args = (struct arg_struct *) sock;
 
 	int newsockfd = args->socket;
-	args->stateBuffer->push(
-			"Socket " + patch::to_string(newsockfd) + " is now handled");
+	args->stateBuffer->push(ClientDeviceHandler::getTime() + "\tSocket " + patch::to_string(newsockfd) + " is now handled");
 	char buffer[256];
 	args->flag = 1;
 	while (args->flag == 1 && TimerNow - WAtchdogTimer < args->watchdog)
@@ -177,7 +176,7 @@ void * ClientDeviceHandler::connection_handler(void *sock) {
 		time(&TimerNow);
 	}
 	if (TimerNow - WAtchdogTimer > args->watchdog)
-		args->stateBuffer->push("Connection time-out");
+		args->stateBuffer->push(ClientDeviceHandler::getTime() + "\tConnection time-out");
 
 	return NULL;
 }
@@ -189,7 +188,7 @@ void * ClientDeviceHandler::LaunchListener(void * communication) {
 	int *portno;
 	portno = new int();
 	*portno = 6000;
-	comm->ClientStateBuffer.push("Initiating listener...\n");
+	comm->ClientStateBuffer.push(ClientDeviceHandler::getTime() + "\tInitiating listener...\n");
 
 	struct arg_struct args;
 	args.socket = *portno;
@@ -202,7 +201,7 @@ void * ClientDeviceHandler::LaunchListener(void * communication) {
 
 	int threadCreation = pthread_create(&listener_thread, NULL,
 			&ClientDeviceHandler::listener, (void*) &args);
-	std::string message = "Thread Creation result: ";
+	std::string message = ClientDeviceHandler::getTime() + "\tThread Creation result: ";
 	message += patch::to_string(threadCreation);
 	comm->ClientStateBuffer.push(message);
 
