@@ -129,7 +129,7 @@ void * ClientDeviceHandler::connection_handler(void *sock) {
 	struct arg_struct *args = (struct arg_struct *) sock;
 
 	int newsockfd = args->socket;
-	args->stateBuffer->push(ClientDeviceHandler::getTime() + "\tSocket " + patch::to_string(newsockfd) + " is now handled");
+	args->stateBuffer->push(ClientDeviceHandler::getTime() + "\tSocket " + patch::to_string(newsockfd) + " is now handled\n");
 	char buffer[256];
 	args->flag = 1;
 	while (args->flag == 1 && TimerNow - WAtchdogTimer < args->watchdog)
@@ -169,14 +169,14 @@ void * ClientDeviceHandler::connection_handler(void *sock) {
 				args->flag = 0;
 			} else {
 				args->outputBuffer->pop();
-				std::string tmpState = "data sent: " + tmp;
+				std::string tmpState = ClientDeviceHandler::getTime() + "\tdata sent: " + tmp + "\n";
 				args->stateBuffer->push(tmpState);
 			}
 		}
 		time(&TimerNow);
 	}
 	if (TimerNow - WAtchdogTimer > args->watchdog)
-		args->stateBuffer->push(ClientDeviceHandler::getTime() + "\tConnection time-out");
+		args->stateBuffer->push(ClientDeviceHandler::getTime() + "\tConnection time-out\n");
 
 	return NULL;
 }
@@ -202,7 +202,7 @@ void * ClientDeviceHandler::LaunchListener(void * communication) {
 	int threadCreation = pthread_create(&listener_thread, NULL,
 			&ClientDeviceHandler::listener, (void*) &args);
 	std::string message = ClientDeviceHandler::getTime() + "\tThread Creation result: ";
-	message += patch::to_string(threadCreation);
+	message += patch::to_string(threadCreation) + "\n";
 	comm->ClientStateBuffer.push(message);
 
 	while (true) {
