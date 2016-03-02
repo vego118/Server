@@ -9,7 +9,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	InternalCommunicationProvider comm;
-        ofstream ErrorLog;
+        ofstream ErrorLog, StateLog;
         
 	pthread_t clientHandlerThread;
 	pthread_create(&clientHandlerThread, NULL,
@@ -18,6 +18,10 @@ int main(int argc, char *argv[]) {
 	while (true) {
 		if (!comm.ClientStateBuffer.empty())
 		{
+                        StateLog.open ("State.log", ios::app);
+                        string tmpMessage = comm.ClientStateBuffer.front().c_str();
+                        StateLog << tmpMessage ;
+                        StateLog.close();
 			printf("STATE: %s\n", comm.ClientStateBuffer.front().c_str());
 			comm.ClientStateBuffer.pop();
 			fflush(stdout);
