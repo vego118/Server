@@ -2,10 +2,15 @@
 #include "InternalCommunicationProvider.h"
 #include <queue>
 #include <pthread.h>
+#include <iostream>
+#include <fstream>
+
+using namespace std;
 
 int main(int argc, char *argv[]) {
 	InternalCommunicationProvider comm;
-
+        ofstream ErrorLog;
+        
 	pthread_t clientHandlerThread;
 	pthread_create(&clientHandlerThread, NULL,
 			&ClientDeviceHandler::LaunchListener, (void*) &comm);
@@ -26,10 +31,15 @@ int main(int argc, char *argv[]) {
 		}
 		if (!comm.ClientErrorBuffer.empty())
 		{
-			printf("Received Command: %s\n", comm.ClientErrorBuffer.front().c_str());
-			comm.ClientErrorBuffer.pop();
-			fflush(stdout);
+                    ErrorLog.open ("Error.log");
+                    string tmpMessage = "Received Command: ";
+                    tmpMessage += comm.ClientErrorBuffer.front().c_str();
+                    ErrorLog << tmpMessage ;
+                    ErrorLog.close();
+                    printf("Received Command: %s\n", comm.ClientErrorBuffer.front().c_str());
+                    comm.ClientErrorBuffer.pop();
+                    fflush(stdout);
 		}
 	}
-	return 0;
+        return 0;
 }
