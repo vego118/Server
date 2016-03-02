@@ -121,7 +121,7 @@ void * ClientDeviceHandler::listener(void *sock) {
 }
 
 void * ClientDeviceHandler::connection_handler(void *sock) {
-	time_t WAtchdogTimer, TimerNow;
+	time_t WAtchdogTimer, TimerNow, TimeDiffrence;
 	//Reset Timers
 	time(&WAtchdogTimer);
 	time(&TimerNow);
@@ -132,7 +132,7 @@ void * ClientDeviceHandler::connection_handler(void *sock) {
 	args->stateBuffer->push(ClientDeviceHandler::getTime() + "\tSocket " + patch::to_string(newsockfd) + " is now handled\n");
 	char buffer[256];
 	args->flag = 1;
-	while (args->flag == 1 && TimerNow - WAtchdogTimer < args->watchdog)
+	while (args->flag == 1 && TimeDiffrence < args->watchdog)
 	{
 		std::string xxx = patch::to_string(args->flag);
 		if (newsockfd < 0) {
@@ -174,8 +174,9 @@ void * ClientDeviceHandler::connection_handler(void *sock) {
 			}
 		}
 		time(&TimerNow);
+                TimeDiffrence = TimerNow - WAtchdogTimer;
 	}
-	if (TimerNow - WAtchdogTimer > args->watchdog)
+	if (TimeDiffrence > args->watchdog)
 		args->stateBuffer->push(ClientDeviceHandler::getTime() + "\tConnection time-out\n");
 
 	return NULL;
