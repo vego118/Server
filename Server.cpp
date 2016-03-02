@@ -31,9 +31,8 @@ int main(int argc, char *argv[]) {
 		}
 		if (!comm.ClientErrorBuffer.empty())
 		{
-                    ErrorLog.open ("Error.log");
-                    string tmpMessage = "Received Command: ";
-                    tmpMessage += comm.ClientErrorBuffer.front().c_str();
+                    ErrorLog.open ("Error.log", ios::app);
+                    string tmpMessage = comm.ClientErrorBuffer.front().c_str();
                     ErrorLog << tmpMessage ;
                     ErrorLog.close();
                     printf("Received Command: %s\n", comm.ClientErrorBuffer.front().c_str());

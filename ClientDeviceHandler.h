@@ -17,10 +17,10 @@ class ClientDeviceHandler {
 public:
 	static void *LaunchListener(void *);
 	struct arg_struct;
+        static std::string getTime();
 
-private:
-
-	ClientDeviceHandler();
+private:    
+        ClientDeviceHandler();
 	~ClientDeviceHandler();
 	static void *listener(void *);
 	static void *connection_handler(void *);
