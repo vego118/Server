@@ -9,7 +9,7 @@ using namespace std;
 
 int main(int argc, char *argv[]) {
 	InternalCommunicationProvider comm;
-        ofstream ErrorLog, StateLog;
+        ofstream ErrorLog, StateLog, IncomingLog;
         
 	pthread_t clientHandlerThread;
 	pthread_create(&clientHandlerThread, NULL,
@@ -28,6 +28,11 @@ int main(int argc, char *argv[]) {
 		}
 		if (!comm.ClientInputBuffer.empty())
 		{
+                        IncomingLog.open ("Incomming.log", ios::app);
+                        string tmpMessage = comm.ClientInputBuffer.front().c_str();
+                        tmpMessage += "\n";
+                        IncomingLog << tmpMessage ;
+                        IncomingLog.close();
 			printf("Received Command: %s\n", comm.ClientInputBuffer.front().c_str());
 			comm.ClientOutputBuffer.push("dupa");
 			comm.ClientInputBuffer.pop();
@@ -39,7 +44,7 @@ int main(int argc, char *argv[]) {
                     string tmpMessage = comm.ClientErrorBuffer.front().c_str();
                     ErrorLog << tmpMessage ;
                     ErrorLog.close();
-                    printf("Received Command: %s\n", comm.ClientErrorBuffer.front().c_str());
+                    printf("ERROR: %s\n", comm.ClientErrorBuffer.front().c_str());
                     comm.ClientErrorBuffer.pop();
                     fflush(stdout);
 		}
